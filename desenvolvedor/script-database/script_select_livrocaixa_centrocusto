@@ -1,0 +1,10 @@
+use saac;
+
+SELECT
+    lc.livroCaixaId,
+    cc.centroCustoId,
+    cc.descricao
+FROM LivroCaixa lc
+INNER JOIN CentroCusto cc
+    ON lc.centroCustoId = cc.centroCustoId
+WHERE lc.situacaoId = 4;

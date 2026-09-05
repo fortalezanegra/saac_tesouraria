@@ -1,0 +1,540 @@
+
+/*===================================================
+SELECIONA ENTRADAS POR TIPO (Dizimo/Campanha/Outros)
+===================================================*/
+
+SELECT
+    l.dataDeposito,
+    c.descricao AS categoria,
+
+    CASE
+        WHEN l.membroId IS NOT NULL THEN m.nome
+        WHEN l.campanhaId IS NOT NULL THEN cp.descricao
+        ELSE l.descricao
+    END AS descricao,
+
+    l.valor,
+    cc.descricao AS centroCusto
+FROM Lancamento l
+JOIN Categoria c ON c.categoriaId = l.categoriaId
+JOIN TipoMovimentacao tp ON tp.tipoMovimentacaoId = c.tipoMovimentacaoId
+JOIN CentroCusto cc ON cc.centroCustoId = l.centroCustoId
+LEFT JOIN Membro m ON m.membroId = l.membroId
+LEFT JOIN Campanha cp ON cp.campanhaId = l.campanhaId
+WHERE l.deletedAt IS NULL
+  AND l.livroCaixaId = $P{LIVRO_CAIXA_ID}
+  AND tp.descricao = 'ENTRADA'
+ORDER BY l.dataDeposito;
+
+
+/*===================================================
+                     SELECIONA SAIDAS
+===================================================*/
+
+SELECT
+    l.dataDeposito,
+    c.descricao AS categoria,
+
+    CASE
+        WHEN l.membroId IS NOT NULL THEN m.nome
+        WHEN l.campanhaId IS NOT NULL THEN cp.descricao
+        ELSE l.descricao
+    END AS descricao,
+
+    l.valor,
+    cc.descricao AS centroCusto
+FROM Lancamento l
+JOIN Categoria c ON c.categoriaId = l.categoriaId
+JOIN TipoMovimentacao tp ON tp.tipoMovimentacaoId = c.tipoMovimentacaoId
+JOIN CentroCusto cc ON cc.centroCustoId = l.centroCustoId
+LEFT JOIN Membro m ON m.membroId = l.membroId
+LEFT JOIN Campanha cp ON cp.campanhaId = l.campanhaId
+WHERE l.deletedAt IS NULL
+  AND l.livroCaixaId = $P{LIVRO_CAIXA_ID}
+  AND tp.descricao = 'SAIDA'
+ORDER BY l.dataDeposito;
+
+
+
+/*===================================================
+                   SELECIONA TRANSFERENCIA
+===================================================*/
+
+SELECT
+    l.dataDeposito,
+    c.descricao AS categoria,
+
+    CASE
+        WHEN l.membroId IS NOT NULL THEN m.nome
+        WHEN l.campanhaId IS NOT NULL THEN cp.descricao
+        ELSE l.descricao
+    END AS descricao,
+
+    l.valor,
+    cc.descricao AS centroCusto
+FROM Lancamento l
+JOIN Categoria c ON c.categoriaId = l.categoriaId
+JOIN TipoMovimentacao tp ON tp.tipoMovimentacaoId = c.tipoMovimentacaoId
+JOIN CentroCusto cc ON cc.centroCustoId = l.centroCustoId
+LEFT JOIN Membro m ON m.membroId = l.membroId
+LEFT JOIN Campanha cp ON cp.campanhaId = l.campanhaId
+WHERE l.deletedAt IS NULL
+  AND l.livroCaixaId = $P{LIVRO_CAIXA_ID}
+  AND tp.descricao = 'TRANSFERENCIA'
+ORDER BY l.dataDeposito;
+
+
+
+/*===================================================
+         TOTAL ENTRADA - TOTAL SAIDA - SALDO FINAL
+===================================================*/
+
+SELECT
+    SUM(CASE 
+            WHEN tp.descricao = 'ENTRADA' THEN l.valor 
+            ELSE 0 
+        END) AS total_entradas,
+
+    SUM(CASE 
+            WHEN tp.descricao = 'SAIDA' THEN l.valor 
+            ELSE 0 
+        END) AS total_saidas,
+
+    SUM(CASE 
+            WHEN tp.descricao = 'ENTRADA' THEN l.valor
+            WHEN tp.descricao = 'SAIDA'   THEN -l.valor
+            ELSE 0
+        END) AS saldo_final
+FROM Lancamento l
+JOIN Categoria c ON c.categoriaId = l.categoriaId
+JOIN TipoMovimentacao tp ON tp.tipoMovimentacaoId = c.tipoMovimentacaoId
+WHERE l.deletedAt IS NULL
+  AND l.livroCaixaId = $P{LIVRO_CAIXA_ID};
+
+
+
+/*===================================================
+            TOTAL POR CENTRO DE CUSTO - ENTRADA
+===================================================*/
+
+SELECT
+    cc.centroCustoId,
+    cc.descricao AS centroCusto,
+    SUM(l.valor) AS total_entradas
+FROM Lancamento l
+JOIN Categoria c ON c.categoriaId = l.categoriaId
+JOIN TipoMovimentacao tp ON tp.tipoMovimentacaoId = c.tipoMovimentacaoId
+JOIN CentroCusto cc ON cc.centroCustoId = l.centroCustoId
+WHERE l.deletedAt IS NULL
+  AND l.livroCaixaId = $P{LIVRO_CAIXA_ID}
+  AND tp.descricao = 'ENTRADA'
+GROUP BY cc.centroCustoId, cc.descricao
+ORDER BY cc.descricao;
+
+/*===================================================
+            TOTAL POR CENTRO DE CUSTO - SAIDA
+===================================================*/
+
+SELECT
+    cc.centroCustoId,
+    cc.descricao AS centroCusto,
+    SUM(l.valor) AS total_entradas
+FROM Lancamento l
+JOIN Categoria c ON c.categoriaId = l.categoriaId
+JOIN TipoMovimentacao tp ON tp.tipoMovimentacaoId = c.tipoMovimentacaoId
+JOIN CentroCusto cc ON cc.centroCustoId = l.centroCustoId
+WHERE l.deletedAt IS NULL
+  AND l.livroCaixaId = $P{LIVRO_CAIXA_ID}
+  AND tp.descricao = 'ENTRADA'
+GROUP BY cc.centroCustoId, cc.descricao
+ORDER BY cc.descricao;
+
+
+/*===================================================
+TOTAL POR CENTRO DE CUSTO - ENTRADA/SAIDA/SALDO FINAL
+===================================================*/
+
+SELECT
+    cc.centroCustoId,
+    cc.descricao AS centroCusto,
+
+    SUM(CASE
+            WHEN tp.descricao = 'ENTRADA' THEN l.valor
+            ELSE 0
+        END) AS total_entradas,
+
+    SUM(CASE
+            WHEN tp.descricao = 'SAIDA' THEN l.valor
+            ELSE 0
+        END) AS total_saidas,
+
+    SUM(CASE
+            WHEN tp.descricao = 'ENTRADA' THEN l.valor
+            WHEN tp.descricao = 'SAIDA'   THEN -l.valor
+            ELSE 0
+        END) AS saldo
+FROM Lancamento l
+JOIN Categoria c ON c.categoriaId = l.categoriaId
+JOIN TipoMovimentacao tp ON tp.tipoMovimentacaoId = c.tipoMovimentacaoId
+JOIN CentroCusto cc ON cc.centroCustoId = l.centroCustoId
+WHERE l.deletedAt IS NULL
+  AND l.livroCaixaId = $P{LIVRO_CAIXA_ID}
+GROUP BY cc.centroCustoId, cc.descricao
+ORDER BY cc.descricao;
+
+
+/*========================================================================
+TOTAL ENTRADAS - TOTAL SAIDAS - SALDO FINAL - SALDO ENVIADO - SALDO ENVIAR
+========================================================================*/
+
+SELECT
+    /* TOTAL ENTRADAS */
+    SUM(CASE
+            WHEN tm.descricao = 'ENTRADA' THEN l.valor
+            ELSE 0
+        END) AS total_entradas,
+
+    /* TOTAL SAIDAS */
+    SUM(CASE
+            WHEN tm.descricao = 'SAIDA' THEN l.valor
+            ELSE 0
+        END) AS total_saidas,
+
+    /* SALDO FINAL = ENTRADA - SAIDA */
+    SUM(CASE
+            WHEN tm.descricao = 'ENTRADA' THEN l.valor
+            WHEN tm.descricao = 'SAIDA'   THEN -l.valor
+            ELSE 0
+        END) AS saldo_final,
+
+    /* SALDO ENVIADO (ENTRADA + MATRIZ + PAGAMENTO != DINHEIRO) */
+    SUM(CASE
+            WHEN tm.descricao = 'ENTRADA'
+             AND cc.tipoCentro = 'Matriz'
+             AND tp.descricao <> 'Dinheiro'
+                THEN l.valor
+            ELSE 0
+        END) AS saldo_enviado,
+
+    /* SALDO A ENVIAR = SALDO FINAL - SALDO ENVIADO */
+    (
+        SUM(CASE
+                WHEN tm.descricao = 'ENTRADA' THEN l.valor
+                WHEN tm.descricao = 'SAIDA'   THEN -l.valor
+                ELSE 0
+            END)
+        -
+        SUM(CASE
+                WHEN tm.descricao = 'ENTRADA'
+                 AND cc.tipoCentro = 'Matriz'
+                 AND tp.descricao <> 'Dinheiro'
+                    THEN l.valor
+                ELSE 0
+            END)
+    ) AS saldo_a_enviar
+
+FROM Lancamento l
+JOIN Categoria c 
+    ON c.categoriaId = l.categoriaId
+JOIN TipoMovimentacao tm 
+    ON tm.tipoMovimentacaoId = c.tipoMovimentacaoId
+JOIN CentroCusto cc 
+    ON cc.centroCustoId = l.centroCustoId
+JOIN TipoPagamento tp 
+    ON tp.tipoPagamentoId = l.tipoPagamentoId
+WHERE l.deletedAt IS NULL
+  AND l.livroCaixaId = $P{LIVRO_CAIXA_ID};
+
+
+
+
+/*###############################################
+	
+	E X T R A T O   L I V R O   C A I X A 
+
+################################################*/
+
+
+/*===================================================
+SELECIONA ENTRADAS POR TIPO (Dizimo/Campanha/Outros)
+===================================================*/
+
+SELECT
+    l.dataDeposito,
+    c.descricao AS categoria,
+
+    CASE
+        WHEN l.membroId IS NOT NULL THEN m.nome
+        WHEN l.campanhaId IS NOT NULL THEN cp.descricao
+        ELSE l.descricao
+    END AS descricao,
+
+    l.valor,
+    cc.descricao AS centroCusto
+FROM Lancamento l
+JOIN Categoria c ON c.categoriaId = l.categoriaId
+JOIN TipoMovimentacao tp ON tp.tipoMovimentacaoId = c.tipoMovimentacaoId
+JOIN CentroCusto cc ON cc.centroCustoId = l.centroCustoId
+LEFT JOIN Membro m ON m.membroId = l.membroId
+LEFT JOIN Campanha cp ON cp.campanhaId = l.campanhaId
+WHERE l.deletedAt IS NULL
+  AND l.livroCaixaId = $P{LIVRO_CAIXA_ID}
+  AND tp.descricao = 'ENTRADA'
+ORDER BY l.dataDeposito;
+
+
+
+/*===================================================
+                     SELECIONA SAIDAS
+===================================================*/
+
+SELECT
+    l.dataDeposito,
+    c.descricao AS categoria,
+
+    CASE
+        WHEN l.membroId IS NOT NULL THEN m.nome
+        WHEN l.campanhaId IS NOT NULL THEN cp.descricao
+        ELSE l.descricao
+    END AS descricao,
+
+    l.valor,
+    cc.descricao AS centroCusto
+FROM Lancamento l
+JOIN Categoria c ON c.categoriaId = l.categoriaId
+JOIN TipoMovimentacao tp ON tp.tipoMovimentacaoId = c.tipoMovimentacaoId
+JOIN CentroCusto cc ON cc.centroCustoId = l.centroCustoId
+LEFT JOIN Membro m ON m.membroId = l.membroId
+LEFT JOIN Campanha cp ON cp.campanhaId = l.campanhaId
+WHERE l.deletedAt IS NULL
+  AND l.livroCaixaId = $P{LIVRO_CAIXA_ID}
+  AND tp.descricao = 'SAIDA'
+ORDER BY l.dataDeposito;
+
+/*========================================================================
+TOTAL ENTRADAS - TOTAL SAIDAS - SALDO FINAL - SALDO ENVIADO - SALDO ENVIAR
+========================================================================*/
+
+SELECT
+    /* TOTAL ENTRADAS */
+    SUM(CASE
+            WHEN tm.descricao = 'ENTRADA' THEN l.valor
+            ELSE 0
+        END) AS total_entradas,
+
+    /* TOTAL SAIDAS */
+    SUM(CASE
+            WHEN tm.descricao = 'SAIDA' THEN l.valor
+            ELSE 0
+        END) AS total_saidas,
+
+    /* SALDO FINAL = ENTRADA - SAIDA */
+    SUM(CASE
+            WHEN tm.descricao = 'ENTRADA' THEN l.valor
+            WHEN tm.descricao = 'SAIDA'   THEN -l.valor
+            ELSE 0
+        END) AS saldo_final,
+
+    /* SALDO ENVIADO (ENTRADA + MATRIZ + PAGAMENTO != DINHEIRO) */
+    SUM(CASE
+            WHEN tm.descricao = 'ENTRADA'
+             AND cc.tipoCentro = 'Matriz'
+             AND tp.descricao <> 'Dinheiro'
+                THEN l.valor
+            ELSE 0
+        END) AS saldo_enviado,
+
+    /* SALDO A ENVIAR = SALDO FINAL - SALDO ENVIADO */
+    (
+        SUM(CASE
+                WHEN tm.descricao = 'ENTRADA' THEN l.valor
+                WHEN tm.descricao = 'SAIDA'   THEN -l.valor
+                ELSE 0
+            END)
+        -
+        SUM(CASE
+                WHEN tm.descricao = 'ENTRADA'
+                 AND cc.tipoCentro = 'Matriz'
+                 AND tp.descricao <> 'Dinheiro'
+                    THEN l.valor
+                ELSE 0
+            END)
+    ) AS saldo_a_enviar
+
+FROM Lancamento l
+JOIN Categoria c 
+    ON c.categoriaId = l.categoriaId
+JOIN TipoMovimentacao tm 
+    ON tm.tipoMovimentacaoId = c.tipoMovimentacaoId
+JOIN CentroCusto cc 
+    ON cc.centroCustoId = l.centroCustoId
+JOIN TipoPagamento tp 
+    ON tp.tipoPagamentoId = l.tipoPagamentoId
+WHERE l.deletedAt IS NULL
+  AND l.livroCaixaId = $P{LIVRO_CAIXA_ID};
+
+
+/*===================================================
+            NOME DA FILIAL/CONGREGAÇÃO
+===================================================*/
+
+SELECT
+    l.dataDeposito,
+    c.descricao AS categoria,
+
+    CASE
+        WHEN l.membroId IS NOT NULL THEN m.nome
+        WHEN l.campanhaId IS NOT NULL THEN cp.descricao
+        ELSE l.descricao
+    END AS descricao,
+
+    l.valor,
+    cc.descricao AS centroCusto,
+    (
+        SELECT g.nome AS nomeFilial
+        FROM LivroCaixa lc
+        JOIN CentroCusto cc ON cc.centroCustoId = lc.centroCustoId
+        JOIN Congregacao g  ON g.congregacaoId = cc.congregacaoId
+        WHERE lc.livroCaixaId = 1
+    ) AS 'nomeFilial'
+FROM Lancamento l
+JOIN Categoria c ON c.categoriaId = l.categoriaId
+JOIN TipoMovimentacao tp ON tp.tipoMovimentacaoId = c.tipoMovimentacaoId
+JOIN CentroCusto cc ON cc.centroCustoId = l.centroCustoId
+LEFT JOIN Membro m ON m.membroId = l.membroId
+LEFT JOIN Campanha cp ON cp.campanhaId = l.campanhaId
+WHERE l.deletedAt IS NULL
+  AND l.livroCaixaId = 1
+  AND tp.descricao = 'ENTRADA'
+ORDER BY l.dataDeposito;
+
+
+  
+
+  /*################################################*/
+
+/*TUDO*/
+
+SELECT
+    base.dataDeposito,
+    base.tipoMovimentacao,
+    base.categoria,
+    base.descricao,
+    base.valor,
+    base.centroCusto,
+
+    filial.nomeFilial,
+
+    totais.total_entradas,
+    totais.total_saidas,
+    totais.saldo_final,
+    totais.saldo_enviado,
+    totais.saldo_a_enviar
+
+FROM
+(
+    /* =====================================
+       LISTA DE ENTRADAS E SAIDAS (UNIFICADA)
+       ===================================== */
+    SELECT
+        l.dataDeposito,
+        tp.descricao AS tipoMovimentacao,
+        c.descricao  AS categoria,
+
+        CASE
+            WHEN l.membroId IS NOT NULL THEN m.nome
+            WHEN l.campanhaId IS NOT NULL THEN cp.descricao
+            ELSE l.descricao
+        END AS descricao,
+
+        l.valor,
+        cc.descricao AS centroCusto
+
+    FROM Lancamento l
+    JOIN Categoria c ON c.categoriaId = l.categoriaId
+    JOIN TipoMovimentacao tp ON tp.tipoMovimentacaoId = c.tipoMovimentacaoId
+    JOIN CentroCusto cc ON cc.centroCustoId = l.centroCustoId
+    LEFT JOIN Membro m ON m.membroId = l.membroId
+    LEFT JOIN Campanha cp ON cp.campanhaId = l.campanhaId
+
+    WHERE l.deletedAt IS NULL
+      AND l.livroCaixaId = $P{LIVRO_CAIXA_ID}
+) base
+
+/* ==========================
+   NOME DA FILIAL / CONGREGAÇÃO
+   ========================== */
+CROSS JOIN
+(
+    SELECT
+        g.nome AS nomeFilial
+    FROM LivroCaixa lc
+    JOIN CentroCusto cc ON cc.centroCustoId = lc.centroCustoId
+    JOIN Congregacao g  ON g.congregacaoId = cc.congregacaoId
+    WHERE lc.livroCaixaId = $P{LIVRO_CAIXA_ID}
+) filial
+
+CROSS JOIN
+(
+    /* =====================================
+       TOTAIS
+       ===================================== */
+    SELECT
+        SUM(CASE
+                WHEN tm.descricao = 'ENTRADA' THEN l.valor
+                ELSE 0
+            END) AS total_entradas,
+
+        SUM(CASE
+                WHEN tm.descricao = 'SAIDA' THEN l.valor
+                ELSE 0
+            END) AS total_saidas,
+
+        SUM(CASE
+                WHEN tm.descricao = 'ENTRADA' THEN l.valor
+                WHEN tm.descricao = 'SAIDA'   THEN -l.valor
+                ELSE 0
+            END) AS saldo_final,
+
+        SUM(CASE
+                WHEN tm.descricao = 'ENTRADA'
+                 AND cc.tipoCentro = 'Matriz'
+                 AND tp.descricao <> 'Dinheiro'
+                    THEN l.valor
+                ELSE 0
+            END) AS saldo_enviado,
+
+        (
+            SUM(CASE
+                    WHEN tm.descricao = 'ENTRADA' THEN l.valor
+                    WHEN tm.descricao = 'SAIDA'   THEN -l.valor
+                    ELSE 0
+                END)
+            -
+            SUM(CASE
+                    WHEN tm.descricao = 'ENTRADA'
+                     AND cc.tipoCentro = 'Matriz'
+                     AND tp.descricao <> 'Dinheiro'
+                        THEN l.valor
+                    ELSE 0
+                END)
+        ) AS saldo_a_enviar
+
+    FROM Lancamento l
+    JOIN Categoria c ON c.categoriaId = l.categoriaId
+    JOIN TipoMovimentacao tm ON tm.tipoMovimentacaoId = c.tipoMovimentacaoId
+    JOIN CentroCusto cc ON cc.centroCustoId = l.centroCustoId
+    JOIN TipoPagamento tp ON tp.tipoPagamentoId = l.tipoPagamentoId
+
+    WHERE l.deletedAt IS NULL
+      AND l.livroCaixaId = $P{LIVRO_CAIXA_ID}
+) totais
+
+ORDER BY
+    CASE base.tipoMovimentacao
+        WHEN 'ENTRADA' THEN 1
+        WHEN 'SAIDA'   THEN 2
+        ELSE 3
+    END,
+    base.dataDeposito;
+

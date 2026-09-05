@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        @page { size: A4; margin: 2cm 1.5cm; }
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #222; }
+        .header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #333; padding-bottom: 8px; }
+        .header h1 { font-size: 15px; margin: 0; }
+        .header h2 { font-size: 13px; margin: 4px 0 0 0; color: #444; }
+        .info { display: flex; justify-content: space-between; margin: 10px 0 15px 0; font-size: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #999; padding: 4px 6px; font-size: 10px; }
+        th { background-color: #e8e8e8; text-align: left; }
+        tr.entrada td { color: #1a7a1a; }
+        tr.saida td { color: #b30000; }
+
+        th.col-data, td.col-data { width: 70px; white-space: nowrap; }
+
+        .totais { margin-top: 15px; width: 55%; margin-left: auto; }
+        .totais td { border: none; padding: 2px 6px; }
+        .totais tr.saldo td { font-weight: bold; border-top: 2px solid #333; }
+
+        .assinaturas { width: 100%; margin-top: 50px; border-collapse: separate; border-spacing: 20px 0; }
+        .assinaturas td { border: none; text-align: center; padding-top: 4px; font-size: 10px; }
+        .assinaturas .linha { border-top: 1px solid #333; padding-bottom: 2px; width: 40%; }
+        .assinaturas .espaco { width: 20%; }
+
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>SAAC — Sistema Administrativo ADBras Cosmópolis</h1>
+    <h2 th:text="${relatorio.nomeCongregacao}">Congregação</h2>
+    <h2>Relatório Mensal de Movimentação de Caixa</h2>
+</div>
+
+<div class="info">
+    <span>Competência: <strong th:text="${relatorio.competencia}"></strong></span>
+    <span>Emitido em: <strong th:text="${#temporals.format(relatorio.dataEmissao, 'dd/MM/yyyy HH:mm')}"></strong></span>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th class="col-data">Data</th>
+        <th>Categoria</th>
+        <th>Entrada</th>
+        <th>Saída</th>
+        <th>Saldo</th>
+        <th>Histórico</th>
+        <th>Responsável</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${relatorio.itens}"
+        th:class="${item.entrada != null and item.entrada.compareTo(@java.math.BigDecimal@ZERO) > 0} ? 'entrada' : 'saida'">
+        <td class="col-data" th:text="${#temporals.format(item.data, 'dd/MM/yyyy')}"></td>
+        <td th:text="${item.categoria}"></td>
+        <td th:text="${item.entrada != null and item.entrada.compareTo(@java.math.BigDecimal@ZERO) > 0} ? ${#numbers.formatDecimal(item.entrada, 1, 2, 'POINT')} : ''"></td>
+        <td th:text="${item.saida != null and item.saida.compareTo(@java.math.BigDecimal@ZERO) > 0} ? ${#numbers.formatDecimal(item.saida, 1, 2, 'POINT')} : ''"></td>
+        <td th:text="${#numbers.formatDecimal(item.saldo, 1, 2, 'POINT')}"></td>
+        <td th:text="${item.historico}"></td>
+        <td th:text="${item.responsavel}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<table class="totais">
+    <tr>
+        <td>Total de Entradas:</td>
+        <td th:text="'R$ ' + ${#numbers.formatDecimal(relatorio.totalEntradas, 1, 2, 'POINT')}"></td>
+    </tr>
+    <tr>
+        <td>Total de Saídas:</td>
+        <td th:text="'R$ ' + ${#numbers.formatDecimal(relatorio.totalSaidas, 1, 2, 'POINT')}"></td>
+    </tr>
+    <tr>
+        <td>Saldo Enviado (Sede):</td>
+        <td th:text="'R$ ' + ${#numbers.formatDecimal(relatorio.saldoEnviado, 1, 2, 'POINT')}"></td>
+    </tr>
+    <tr>
+        <td>Saldo a Enviar (Sede):</td>
+        <td th:text="'R$ ' + ${#numbers.formatDecimal(relatorio.saldoAEnviar, 1, 2, 'POINT')}"></td>
+    </tr>
+    <tr class="saldo">
+        <td>Saldo Final:</td>
+        <td th:text="'R$ ' + ${#numbers.formatDecimal(relatorio.saldoFinal, 1, 2, 'POINT')}"></td>
+    </tr>
+</table>
+
+<table class="assinaturas">
+    <tr>
+        <td class="linha">Assistente Financeiro</td>
+        <td class="espaco"></td>
+        <td class="linha">Dirigente da Congregação</td>
+    </tr>
+</table>
+
+</body>
+</html>

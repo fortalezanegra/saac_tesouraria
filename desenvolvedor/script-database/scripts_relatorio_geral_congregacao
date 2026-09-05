@@ -1,0 +1,78 @@
+
+
+/* Candidatos Batismo */
+SELECT
+	c.nome AS 'Congregacao',
+	m.nome AS 'Candidato',
+	s.descricao AS 'Situacao'
+FROM CandidatoBatismo cb
+INNER JOIN Batismo b ON b.batismoId = cb.batismoId
+INNER JOIN Congregacao c ON c.congregacaoId = cb.congregacaoId
+INNER JOIN Membro m ON m.membroId = cb.membroId
+INNER JOIN Situacao s ON s.situacaoId = cb.situacaoId
+
+WHERE b.data >= '2026-01-01' AND b.data <= '2026-01-31'
+ORDER BY c.nome, m.nome ASC;
+
+/* Eventos */
+SELECT
+	c.nome AS 'Congregacao',
+	m.nome AS 'Candidato',
+	s.descricao AS 'Situacao'
+FROM CandidatoBatismo cb
+INNER JOIN Batismo b ON b.batismoId = cb.batismoId
+INNER JOIN Congregacao c ON c.congregacaoId = cb.congregacaoId
+INNER JOIN Membro m ON m.membroId = cb.membroId
+INNER JOIN Situacao s ON s.situacaoId = cb.situacaoId
+
+WHERE b.data >= '2026-01-01' AND b.data <= '2026-01-31'
+ORDER BY c.nome, m.nome ASC;
+
+SELECT
+    c.nome AS Congregacao,
+    te.descricao AS Tipo_Evento,
+    e.descricao AS Descricao,
+    e.dataEvento AS Data,
+    s.descricao AS Situacao,
+    oe.descricao AS Ocorrencia,
+    ie.quantidade AS QTD
+FROM Evento e
+INNER JOIN Congregacao c 
+    ON c.congregacaoId = e.congregacaoId
+INNER JOIN TipoEvento te 
+    ON te.tipoEventoId = e.tipoEventoId
+INNER JOIN Situacao s 
+    ON s.situacaoId = e.situacaoId
+LEFT JOIN ItemEvento ie 
+    ON ie.eventoId = e.eventoId
+LEFT JOIN OcorrenciaEvento oe 
+    ON oe.ocorrenciaEventoId = ie.ocorrenciaEventoId
+WHERE e.dataEvento BETWEEN '2026-01-01' AND '2026-01-31'
+ORDER BY te.descricao ASC;
+
+
+/* Totais */
+SELECT
+    te.descricao AS Tipo_Evento,
+    COUNT(DISTINCT e.eventoId) AS Total_Eventos,
+    SUM(COALESCE(ie.quantidade, 0)) AS Total_Qtd
+FROM Evento e
+INNER JOIN TipoEvento te
+    ON te.tipoEventoId = e.tipoEventoId
+LEFT JOIN ItemEvento ie
+    ON ie.eventoId = e.eventoId
+WHERE e.dataEvento BETWEEN '2026-01-01' AND '2026-01-31'
+GROUP BY te.tipoEventoId, te.descricao
+ORDER BY te.descricao;
+
+SELECT
+    oe.descricao AS Ocorrencia,
+    SUM(COALESCE(ie.quantidade, 0)) AS Total_Qtd
+FROM Evento e
+LEFT JOIN ItemEvento ie
+    ON ie.eventoId = e.eventoId
+LEFT JOIN OcorrenciaEvento oe
+    ON oe.ocorrenciaEventoId = ie.ocorrenciaEventoId
+WHERE e.dataEvento BETWEEN '2026-01-01' AND '2026-01-31'
+GROUP BY oe.ocorrenciaEventoId, oe.descricao
+ORDER BY oe.descricao;
