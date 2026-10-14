@@ -1,6 +1,6 @@
-package br.com.adbrascosmopolis.saac_tesouraria.a_process_management.fechamento_mensal.auditoria.inicializacao;
+package br.com.adbrascosmopolis.saac_tesouraria.a_process_management.fechamento_mensal.auditoria.inicializar;
 
-public class IniciarAuditoriaRequestDTO {
+public class InicializarAuditoriaRequestDTO {
 
     private Long auditoriaId;
     private Long auditorId;

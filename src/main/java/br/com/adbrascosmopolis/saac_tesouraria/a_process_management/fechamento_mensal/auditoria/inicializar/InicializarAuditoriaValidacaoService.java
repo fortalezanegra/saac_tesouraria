@@ -1,4 +1,4 @@
-package br.com.adbrascosmopolis.saac_tesouraria.a_process_management.fechamento_mensal.auditoria.inicializacao;
+package br.com.adbrascosmopolis.saac_tesouraria.a_process_management.fechamento_mensal.auditoria.inicializar;
 
 import br.com.adbrascosmopolis.saac_tesouraria.enumeration.Deliberacao;
 import br.com.adbrascosmopolis.saac_tesouraria.enumeration.SituacaoAuditoriaConstantes;
@@ -12,11 +12,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class InicializacaoAuditoriaValidacaoService {
+public class InicializarAuditoriaValidacaoService {
 
     private final AuditoriaRepository auditoriaRepository;
 
-    public InicializacaoAuditoriaValidacaoService(AuditoriaRepository auditoriaRepository) {
+    public InicializarAuditoriaValidacaoService(AuditoriaRepository auditoriaRepository) {
         this.auditoriaRepository = auditoriaRepository;
     }
 

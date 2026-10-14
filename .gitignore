@@ -35,3 +35,6 @@ build/
 #### SpringBoot ####
 .env
 *.env
+
+src/main/resources/keys/public_key.pem
+public_key.pem

@@ -1,5 +1,7 @@
-package br.com.adbrascosmopolis.saac_tesouraria.a_process_management.fechamento_mensal.auditoria.inicializacao;
+package br.com.adbrascosmopolis.saac_tesouraria.a_process_management.fechamento_mensal.auditoria.inicializar;
 
+import br.com.adbrascosmopolis.saac_tesouraria.a_process_management.fechamento_mensal.auditoria.preparar.PrepararAuditoriaRequestDTO;
+import br.com.adbrascosmopolis.saac_tesouraria.a_process_management.fechamento_mensal.auditoria.preparar.PrepararAuditoriaValidacaoService;
 import br.com.adbrascosmopolis.saac_tesouraria.dto.auditoria.AuditoriaResponseDTO;
 import br.com.adbrascosmopolis.saac_tesouraria.enumeration.SituacaoAuditoriaConstantes;
 import br.com.adbrascosmopolis.saac_tesouraria.enumeration.SituacaoLivrosConstantes;
@@ -21,20 +23,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class InicializacaoAuditoriaService {
+public class InicializarAuditoriaService {
 
     private final AuditoriaRepository auditoriaRepository;
     private final LivroCaixaRepository livroCaixaRepository;
     private final PessoaRepository pessoaRepository;
     private final SituacaoRepository situacaoRepository;
-    private final InicializacaoAuditoriaValidacaoService validacaoService;
+    private final PrepararAuditoriaValidacaoService validacaoService;
 
-    public InicializacaoAuditoriaService(
+    public InicializarAuditoriaService(
             AuditoriaRepository auditoriaRepository,
             LivroCaixaRepository livroCaixaRepository,
             PessoaRepository pessoaRepository,
             SituacaoRepository situacaoRepository,
-            InicializacaoAuditoriaValidacaoService validacaoService) {
+            PrepararAuditoriaValidacaoService validacaoService) {
         this.auditoriaRepository = auditoriaRepository;
         this.livroCaixaRepository = livroCaixaRepository;
         this.pessoaRepository = pessoaRepository;
@@ -43,60 +45,11 @@ public class InicializacaoAuditoriaService {
     }
 
     /**
-     * ETAPA — Inicialização de Auditorias (processo em lote)
-     * Busca todos os Livros Caixa com situação "Aguardando Auditoria"
-     * e cria uma Auditoria (situação PENDENTE) para cada um.
-     */
-    @Transactional
-    public List<AuditoriaResponseDTO> inicializarAuditorias() {
-
-        List<LivroCaixa> livrosAguardandoAuditoria =
-                livroCaixaRepository.buscarLivrosCaixaParaAuditoria(
-                        SituacaoLivrosConstantes.AGUARDANDO_AUDITORIA,
-                        SituacaoLivrosConstantes.CONTEXTO
-                );
-
-        List<AuditoriaResponseDTO> auditoriasCriadas = new ArrayList<>();
-
-        if (livrosAguardandoAuditoria.isEmpty()) {
-            return auditoriasCriadas;
-        }
-
-        Situacao situacaoAuditoriaPendente =
-                situacaoRepository.buscarPorDescricaoEContexto(
-                        SituacaoAuditoriaConstantes.PENDENTE,
-                        "AUDITORIA"
-                );
-
-        for (LivroCaixa livroCaixa : livrosAguardandoAuditoria) {
-
-            Auditoria auditoria = new Auditoria();
-            auditoria.setLivroCaixa(livroCaixa);
-            auditoria.setSituacao(situacaoAuditoriaPendente);
-            auditoria.setAuditor(null);
-            auditoria.setDataInicio(null);
-            auditoria.setDataFim(null);
-
-            Auditoria salvo = auditoriaRepository.save(auditoria);
-
-            Auditoria completo = auditoriaRepository.findById(salvo.getAuditoriaId())
-                    .orElseThrow(() -> new AuditoriaNaoEncontradaException(
-                            "Auditoria não encontrada após criação."
-                    ));
-
-            auditoriasCriadas.add(AuditoriaResponseDTO.fromAuditoria(completo));
-        }
-
-        return auditoriasCriadas;
-    }
-
-
-    /**
      * ETAPA — Início da Auditoria (análise individual)
      * Auditoria: PENDENTE -> EM_ANALISE, auditorId + dataInicio preenchidos
      */
     @Transactional
-    public AuditoriaResponseDTO iniciarAuditoria(IniciarAuditoriaRequestDTO dto) {
+    public AuditoriaResponseDTO iniciarAuditoria(PrepararAuditoriaRequestDTO dto) {
 
         Auditoria auditoria = auditoriaRepository.findById(dto.getAuditoriaId())
                 .orElseThrow(() -> new AuditoriaNaoEncontradaException(
