@@ -125,7 +125,7 @@ public class TransferenciaFinanceiraService {
                         transferencia
                 );
 
-        gerarMovimentacoes(movimentoSaida, movimentoEntrada);
+        //gerarMovimentacoes(movimentoSaida, movimentoEntrada);
 
         Situacao situacaoEfetivada = situacaoRepository.findByDescricao(SituacaoTransferenciaConstantes.EFETIVADA);
 
@@ -136,10 +136,10 @@ public class TransferenciaFinanceiraService {
         return TransferenciaFinanceiraResponseDTO.fromTransferenciaFinanceira(transferencia);
     }
 
-    private void gerarMovimentacoes(MovimentoFinanceiro saida, MovimentoFinanceiro entrada){
-        movimentoService.createTransference(saida);
-        movimentoService.createTransference(entrada);
-    }
+//    private void gerarMovimentacoes(MovimentoFinanceiro saida, MovimentoFinanceiro entrada){
+//        movimentoService.createTransference(saida);
+//        movimentoService.createTransference(entrada);
+//    }
 
     private MovimentoFinanceiro criarMovimentoSaida(
             TransferenciaFinanceiraRequestDTO request,

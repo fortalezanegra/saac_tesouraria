@@ -22,20 +22,29 @@ public class JwtService {
     }
 
     public Long extractUserId(String token) {
-        return extractClaim(token, c -> c.get("userId", Long.class));
+        Number n = extractClaim(token, c -> c.get("userId", Number.class));
+        return n != null ? n.longValue() : null;
     }
 
     public Long extractUnityId(String token) {
-        return extractClaim(token, c -> c.get("unityId", Long.class));
+        Number n = extractClaim(token, c -> c.get("unityId", Number.class));
+        return n != null ? n.longValue() : null;
     }
 
     @SuppressWarnings("unchecked")
     public List<String> extractAuthorities(String token) {
-        return extractClaim(token, c -> c.get("authorities", List.class));
+        List<?> raw = extractClaim(token, c -> c.get("authorities", List.class));
+        if (raw == null) {
+            return List.of();
+        }
+        return raw.stream()
+                .map(Object::toString)
+                .toList();
     }
 
     public boolean validToken(String token, String email) {
-        return email.equals(extractEmail(token)) && !expiredToken(token);
+        String extractedEmail = extractEmail(token);
+        return extractedEmail != null && extractedEmail.equals(email) && !expiredToken(token);
     }
 
     private boolean expiredToken(String token) {
@@ -54,4 +63,3 @@ public class JwtService {
                 .getPayload();
     }
 }
-

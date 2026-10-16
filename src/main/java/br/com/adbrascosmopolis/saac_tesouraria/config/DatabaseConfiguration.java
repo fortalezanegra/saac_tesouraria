@@ -4,9 +4,11 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 
+@Configuration
 public class DatabaseConfiguration {
 
     @Value("${spring.datasource.url}")
@@ -32,13 +34,10 @@ public class DatabaseConfiguration {
 
         config.setMaximumPoolSize(10);
         config.setMinimumIdle(1);
-        config.setPoolName("Library-db-pool");
+        config.setPoolName("saac-tesouraria-pool");
         config.setMaxLifetime(600000);
         config.setConnectionTimeout(10000);
         config.setIdleTimeout(30000);
-
-        // Opcional: usar somente se o driver for antigo
-        config.setConnectionTestQuery("SELECT 1");
 
         return new HikariDataSource(config);
     }
