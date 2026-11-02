@@ -17,9 +17,21 @@ public interface LivroCaixaRepository extends JpaRepository<LivroCaixa, Long> {
     @Query("""
         SELECT l
         FROM LivroCaixa l
+        WHERE l.deletedAt IS NULL
         ORDER BY l.centroCusto.congregacao.nome ASC, l.centroCusto.descricao ASC, l.competencia DESC
     """)
     List<LivroCaixa> listarLivros();
+
+    //Listar Livros por Centro de Custo
+    @Query("""
+        SELECT l
+        FROM LivroCaixa l
+        WHERE l.deletedAt IS NULL
+        AND l.situacao.situacaoId IN (1, 7)
+        AND l.centroCusto.centroCustoId = :centroCustoId
+        ORDER BY l.competencia DESC
+    """)
+    List<LivroCaixa> listLivrosByCentroCusto(@Param("centroCustoId") Integer centroCustoId);
 
     //Listar Livros por Congregação, Situacao e Período
     @Query("""

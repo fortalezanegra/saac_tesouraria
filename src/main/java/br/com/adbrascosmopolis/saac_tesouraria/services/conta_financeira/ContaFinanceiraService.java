@@ -16,7 +16,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -41,11 +40,14 @@ public class ContaFinanceiraService {
         this.situacaoRepository = situacaoRepository;
     }
 
-    //Dropdown Contas Financeiras
-    @Transactional
-    public List<ContaFinanceiraDropdownDTO> dropdownContas(){
-        List<ContaFinanceiraDropdownDTO> contas = contaFinanceiraRepository.listarContasDropdown();
-        return contas;
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<ContaFinanceiraDropdownDTO> listContas() {
+        return contaFinanceiraRepository.listContas();
+    }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<ContaFinanceiraDropdownDTO> filterContasByCentroCusto(Integer centroCustoId) {
+        return contaFinanceiraRepository.listContasByCentroCusto(centroCustoId);
     }
 
     //Create

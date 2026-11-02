@@ -150,8 +150,8 @@ CREATE TABLE CentroCusto (
 
 /*Insert Tabela Centro Custo*/
 INSERT INTO CentroCusto (congregacaoId, tipoCentro, descricao, situacaoId) VALUES
-(001, 'MATRIZ', 'Tesouraria Matriz', 1),
-(007, 'FILIAL', 'Tesouraria Parque Ether 2', 1);
+(001, 'MATRIZ', 'Tesouraria Matriz', 12),
+(007, 'FILIAL', 'Tesouraria Parque Ether 2', 12);
 
 /*========================================================*/
 /*                        CAMPANHA                        */
@@ -200,8 +200,8 @@ CREATE TABLE Banco (
 
 /*Insert Tabela Banco*/
 INSERT INTO Banco (codigoBanco, nome, situacaoId) VALUES
-(001, 'Bradesco', 1),
-(002, 'Caixa Economica Federal', 1);
+(001, 'Bradesco', 12),
+(002, 'Caixa Economica Federal', 12);
 
 /*========================================================*/
 /*                 TABELA CONTA FINANCEIRA                */
@@ -236,10 +236,10 @@ CREATE TABLE ContaFinanceira (
 
 /*Insert Tabela ContaFinanceira*/
 INSERT INTO ContaFinanceira (bancoId, centroCustoId, descricao, tipoConta, agencia, conta, digito, saldoInicial, dataAbertura, situacaoId) VALUES
-(null, 1, 'Caixa - Matriz', 1, null, null, null, 0.00, '2026-01-01', 1),
-(null, 2, 'Caixa - Pq. Esther 2', 1, null, null, null, 0.00, '2026-01-01', 1),
-(1, 1, 'Bradesco - Matriz', 2, 001, 001, 001, 0.00, '2026-01-01', 1),
-(2, 1, 'Caixa Economica Federal - Matriz', 2, 001, 001, 001, 0.00, '2026-01-01', 1);
+(null, 1, 'Caixa - Matriz', 1, null, null, null, 0.00, '2026-01-01', 12),
+(null, 2, 'Caixa - Pq. Esther 2', 1, null, null, null, 0.00, '2026-01-01', 12),
+(1, 1, 'Bradesco - Matriz', 2, 001, 001, 001, 0.00, '2026-01-01', 12),
+(2, 1, 'Caixa Economica Federal - Matriz', 2, 001, 001, 001, 0.00, '2026-01-01', 12);
 
 /*========================================================*/
 /*               TRANSFERENCIA FINANCEIRA                 */
@@ -316,7 +316,6 @@ INSERT INTO Categoria (descricao, tipoCategoria) VALUES
 /*========================================================*/
 /*                       LIVRO CAIXA                      */
 /*========================================================*/
-DROP TABLE IF EXISTS LivroCaixa;
 CREATE TABLE LivroCaixa (
   livroCaixaId BIGINT PRIMARY KEY AUTO_INCREMENT,
   centroCustoId INT NOT NULL,
@@ -348,7 +347,7 @@ CREATE TABLE MovimentoFinanceiro (
     contaFinanceiraId BIGINT NOT NULL,
     categoriaId INT NOT NULL,
     valor DECIMAL(18,2) NOT NULL,
-    eletronico BOOL DEFAULT NULL,
+    eletronico BOOL DEFAULT FALSE,
     dataMovimento DATE NOT NULL,
     historico VARCHAR(255),
     pessoaId BIGINT DEFAULT NULL,

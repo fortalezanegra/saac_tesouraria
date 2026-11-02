@@ -1,9 +1,6 @@
 package br.com.adbrascosmopolis.saac_tesouraria.controllers;
 
-import br.com.adbrascosmopolis.saac_tesouraria.dto.livro_caixa.LivroCaixaEditDTO;
-import br.com.adbrascosmopolis.saac_tesouraria.dto.livro_caixa.LivroCaixaRequestDTO;
-import br.com.adbrascosmopolis.saac_tesouraria.dto.livro_caixa.LivroCaixaResponseDTO;
-import br.com.adbrascosmopolis.saac_tesouraria.dto.livro_caixa.LivroCaixaSearchDTO;
+import br.com.adbrascosmopolis.saac_tesouraria.dto.livro_caixa.*;
 import br.com.adbrascosmopolis.saac_tesouraria.services.LivroCaixaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +27,16 @@ public class LivroCaixaController {
         List<LivroCaixaResponseDTO> livros = service.listarLivros();
         return ResponseEntity.ok(livros);
     }
+
+    //Listar Livros por Centro Custo
+    @PostMapping("/filtrar")
+    public ResponseEntity<List<LivroCaixaResponseDTO>> filterByCentroCusto(
+            @RequestBody LivroCaixaFiltroDTO dto){
+        List<LivroCaixaResponseDTO> livros = service.listarLivrosPorCongregacao(dto.getCentroCustoId());
+        return ResponseEntity.ok(livros);
+    }
+
+
 
     //Listar Livros por Situacao e Periodo
     @GetMapping("/situacao/periodo")

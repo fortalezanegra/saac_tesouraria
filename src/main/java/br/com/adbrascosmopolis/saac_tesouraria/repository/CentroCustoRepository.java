@@ -4,13 +4,14 @@ import br.com.adbrascosmopolis.saac_tesouraria.dto.centro_custo.CentroCustoDropd
 import br.com.adbrascosmopolis.saac_tesouraria.models.CentroCusto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface CentroCustoRepository extends JpaRepository<CentroCusto, Integer> {
 
-
-    //Dropdown
     @Query("""
         SELECT new br.com.adbrascosmopolis.saac_tesouraria.dto.centro_custo.CentroCustoDropdownDTO(
             c.centroCustoId,
@@ -18,7 +19,8 @@ public interface CentroCustoRepository extends JpaRepository<CentroCusto, Intege
         )
         FROM CentroCusto c
         WHERE c.deletedAt IS NULL
-        ORDER BY c.congregacao.nome ,c.descricao ASC
+          AND (:congregacaoId IS NULL OR c.congregacao.congregacaoId = :congregacaoId)
+        ORDER BY c.congregacao.nome, c.descricao ASC
     """)
-    List<CentroCustoDropdownDTO> listarCentroCustoDropdown();
+    List<CentroCustoDropdownDTO> listCentroCustoByCongregacao(@Param("congregacaoId") Integer congregacaoId);
 }

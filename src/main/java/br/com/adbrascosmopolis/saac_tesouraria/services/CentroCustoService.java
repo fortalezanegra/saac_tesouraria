@@ -11,7 +11,6 @@ import br.com.adbrascosmopolis.saac_tesouraria.repository.SituacaoRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -33,9 +32,9 @@ public class CentroCustoService {
         this.situacaoRepository = situacaoRepository;
     }
 
-    //Dropdown Centros de Custo
-    public List<CentroCustoDropdownDTO> dropdownCentroCusto(){
-        List<CentroCustoDropdownDTO> centros = centroCustoRepository.listarCentroCustoDropdown();
+    //List Centro Custo By congregacaoId
+    public List<CentroCustoDropdownDTO> listCentroCusto(Integer congregacaoId){
+        List<CentroCustoDropdownDTO> centros = centroCustoRepository.listCentroCustoByCongregacao(congregacaoId);
         return centros;
     }
 
