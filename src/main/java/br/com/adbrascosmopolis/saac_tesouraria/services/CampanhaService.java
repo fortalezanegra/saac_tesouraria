@@ -48,15 +48,9 @@ public class CampanhaService {
                 )).toList();
     }
 
-    //Lista Campanhas Ativas
-    public List<CampanhaDropdownDTO> campanhasAtivas(){
-        List<CampanhaDropdownDTO> campanhas = campanhaRepository.listarCampanhasAtivas();
-        return campanhas;
-    }
-
-    //Dropdown Campanhas por Congregação
-    public List<CampanhaDropdownDTO> dropdownCampanhasPorCongregacao(Integer id){
-        List<CampanhaDropdownDTO> campanhas = campanhaRepository.listarCampanhasPorCongregacao(id);
+    //Dropdown Campanhas por Centro de Custo
+    public List<CampanhaDropdownDTO> campanhasPorCongregacao(Integer id){
+        List<CampanhaDropdownDTO> campanhas = campanhaRepository.listarCampanhasPorCentroCusto(id);
         return campanhas;
     }
 

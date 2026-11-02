@@ -5,62 +5,41 @@ import br.com.adbrascosmopolis.saac_tesouraria.dto.categoria.CategoriaEditDTO;
 import br.com.adbrascosmopolis.saac_tesouraria.dto.categoria.CategoriaRequestDTO;
 import br.com.adbrascosmopolis.saac_tesouraria.dto.categoria.CategoriaResponseDTO;
 import br.com.adbrascosmopolis.saac_tesouraria.services.CategoriaService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/categoria")
-@CrossOrigin(origins = "*")
 public class CategoriaController {
 
-    private final CategoriaService service;
+    private final CategoriaService categoriaService;
 
-    public CategoriaController(CategoriaService service){
-        this.service = service;
+    public CategoriaController(CategoriaService categoriaService) {
+        this.categoriaService = categoriaService;
     }
 
-    //Dropdown Categorias
     @GetMapping("/dropdown")
-    public ResponseEntity<List<CategoriaDropdownDTO>> dropdown(){
-        List<CategoriaDropdownDTO> categorias = service.dropdownCategorias();
-        return ResponseEntity.ok(categorias);
+    @PreAuthorize("hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_READ_GLOBAL') or hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_READ_LOCAL')")
+    public ResponseEntity<List<CategoriaDropdownDTO>> dropdown() {
+        return ResponseEntity.ok(categoriaService.dropdownCategorias());
     }
 
-    //Create
-    @PostMapping()
-    public ResponseEntity<Object> create(@RequestBody CategoriaRequestDTO dto){
-        try{
-            CategoriaResponseDTO response = service.create(dto);
-
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentRequest()
-                    .path("/{id}")
-                    .buildAndExpand(response.getCategoriaId())
-                    .toUri();
-
-            return ResponseEntity.created(location).body(response);
-
-        } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        }
+    @PostMapping
+    public ResponseEntity<CategoriaResponseDTO> create(@Valid @RequestBody CategoriaRequestDTO dto) {
+        return ResponseEntity.ok(categoriaService.create(dto));
     }
 
-    //Update
-    @PutMapping()
-    public ResponseEntity<CategoriaResponseDTO> update(@RequestBody CategoriaEditDTO dto){
-        CategoriaResponseDTO categoria = service.update(dto);
-        return ResponseEntity.ok(categoria);
+    @PutMapping
+    public ResponseEntity<CategoriaResponseDTO> update(@Valid @RequestBody CategoriaEditDTO dto) {
+        return ResponseEntity.ok(categoriaService.update(dto));
     }
 
-    //Delete
-    @PutMapping("/delete")
-    public ResponseEntity<CategoriaResponseDTO> delete(@RequestBody CategoriaEditDTO dto){
-        CategoriaResponseDTO categoria = service.delete(dto);
-        return ResponseEntity.ok(categoria);
+    @DeleteMapping
+    public ResponseEntity<CategoriaResponseDTO> delete(@Valid @RequestBody CategoriaEditDTO dto) {
+        return ResponseEntity.ok(categoriaService.delete(dto));
     }
-
 }

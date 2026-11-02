@@ -1,11 +1,11 @@
 package br.com.adbrascosmopolis.saac_tesouraria.controllers;
 
-import br.com.adbrascosmopolis.saac_tesouraria.dto.campanha.CampanhaDropdownDTO;
-import br.com.adbrascosmopolis.saac_tesouraria.dto.campanha.CampanhaEditDTO;
-import br.com.adbrascosmopolis.saac_tesouraria.dto.campanha.CampanhaRequestDTO;
-import br.com.adbrascosmopolis.saac_tesouraria.dto.campanha.CampanhaResponseDTO;
+import br.com.adbrascosmopolis.saac_tesouraria.dto.campanha.*;
+import br.com.adbrascosmopolis.saac_tesouraria.dto.centro_custo.CentroCustoDropdownDTO;
+import br.com.adbrascosmopolis.saac_tesouraria.dto.centro_custo.CentroCustoFiltroDTO;
 import br.com.adbrascosmopolis.saac_tesouraria.services.CampanhaService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -23,26 +23,13 @@ public class CampanhaController {
         this.campanhaService = campanhaService;
     }
 
-    //Listar Todas as Campanhas
-    @GetMapping()
-    public ResponseEntity<List<CampanhaResponseDTO>> listarTodas(){
-        List<CampanhaResponseDTO> campanhas = campanhaService.listarTodas();
-        return ResponseEntity.ok(campanhas);
-    }
-
-    //Campanhas Ativas
-    @GetMapping("/ativas")
-    public ResponseEntity<List<CampanhaDropdownDTO>> campanhasAtivas(){
-        List<CampanhaDropdownDTO> campanhas = campanhaService.campanhasAtivas();
-        return ResponseEntity.ok(campanhas);
-    }
-
-
-    //Campanhas por Congregacao
-    @GetMapping("/dropdown/{id}")
-    public ResponseEntity<List<CampanhaDropdownDTO>> dropdownCampanhasPorCongregacao(@PathVariable("id") Integer id){
-        List<CampanhaDropdownDTO> campanhas = campanhaService.dropdownCampanhasPorCongregacao(id);
-        return ResponseEntity.ok(campanhas);
+    //Campanhas por Centro de Custo
+    @PostMapping("/dropdown")
+    @PreAuthorize("hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_READ_GLOBAL') or hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_READ_LOCAL')")
+    public ResponseEntity<List<CampanhaDropdownDTO>> dropdownCongregacao(
+            @RequestBody CampanhaFiltroDTO dto) {
+        List<CampanhaDropdownDTO> centros = campanhaService.campanhasPorCongregacao(dto.getCentroCustoId());
+        return ResponseEntity.ok(centros);
     }
 
 

@@ -8,7 +8,9 @@ public class CategoriaRequestDTO {
     String descricao;
     TipoCategoria tipoCategoria;
 
-    CategoriaRequestDTO(
+    public CategoriaRequestDTO(){}
+
+    public CategoriaRequestDTO(
             String descricao,
             TipoCategoria tipoCategoria
     ){
