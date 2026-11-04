@@ -1,96 +1,39 @@
 package br.com.adbrascosmopolis.saac_tesouraria.dto.movimento_financeiro;
 
-import br.com.adbrascosmopolis.saac_tesouraria.models.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class MovimentoFinanceiroRequestDTO {
 
-    private Long movimentoFinanceiroId;
+    @NotNull(message = "O livro caixa é obrigatório")
     private Long livroCaixaId;
+
+    @NotNull(message = "A conta financeira é obrigatória")
     private Long contaFinanceiraId;
+
+    @NotNull(message = "A categoria é obrigatória")
     private Integer categoriaId;
+
+    @NotNull(message = "O valor é obrigatório")
+    @Positive(message = "O valor deve ser maior que zero")
     private BigDecimal valor;
+
+    @NotNull(message = "O campo eletrônico é obrigatório")
     private Boolean eletronico;
+
+    @NotNull(message = "A data do movimento é obrigatória")
     private LocalDate dataMovimento;
+
+    @NotNull(message = "O histórico é obrigatório")
+    @Size(max = 255, message = "O histórico deve ter no máximo 255 caracteres")
     private String historico;
+
     private Long pessoaId;
     private Long campanhaId;
-
-    public MovimentoFinanceiroRequestDTO(
-            Long movimentoFinanceiroId,
-            Long livroCaixaId,
-            Long contaFinanceiraId,
-            Integer categoriaId,
-            BigDecimal valor,
-            Boolean eletronico,
-            LocalDate dataMovimento,
-            String historico,
-            Long pessoaId,
-            Long campanhaId
-    ){
-        this.movimentoFinanceiroId = movimentoFinanceiroId;
-        this.livroCaixaId = livroCaixaId;
-        this.contaFinanceiraId = contaFinanceiraId;
-        this.categoriaId = categoriaId;
-        this.valor = valor;
-        this.eletronico = eletronico;
-        this.dataMovimento = dataMovimento;
-        this.historico = historico;
-        this.pessoaId = pessoaId;
-        this.campanhaId = campanhaId;
-    }
-
-    public MovimentoFinanceiro mapToMovimentoFinanceiro(){
-
-        MovimentoFinanceiro mov = new MovimentoFinanceiro();
-
-        mov.setValor(this.valor);
-        mov.setEletronico(this.eletronico);
-        mov.setDataMovimento(this.dataMovimento);
-        mov.setHistorico(this.historico);
-
-        //Relacionamentos
-        if(this.livroCaixaId != null){
-            LivroCaixa livro = new LivroCaixa();
-            livro.setLivroCaixaId(this.livroCaixaId);
-            mov.setLivroCaixa(livro);
-        }
-
-        if(this.contaFinanceiraId != null){
-            ContaFinanceira conta = new ContaFinanceira();
-            conta.setContaFinanceiraId(this.contaFinanceiraId);
-            mov.setContaFinanceira(conta);
-        }
-
-        if(this.categoriaId != null){
-            Categoria categoria = new Categoria();
-            categoria.setCategoriaId(this.categoriaId);
-            mov.setCategoria(categoria);
-        }
-
-        if(this.pessoaId != null){
-            Pessoa pessoa = new Pessoa();
-            pessoa.setPessoaId(this.pessoaId);
-            mov.setPessoa(pessoa);
-        }
-
-        if(this.campanhaId != null){
-            Campanha campanha = new Campanha();
-            campanha.setCampanhaId(this.campanhaId);
-            mov.setCampanha(campanha);
-        }
-
-        return mov;
-    }
-
-    public Long getMovimentoFinanceiroId() {
-        return movimentoFinanceiroId;
-    }
-
-    public void setMovimentoFinanceiroId(Long movimentoFinanceiroId) {
-        this.movimentoFinanceiroId = movimentoFinanceiroId;
-    }
 
     public Long getLivroCaixaId() {
         return livroCaixaId;
@@ -156,7 +99,11 @@ public class MovimentoFinanceiroRequestDTO {
         this.pessoaId = pessoaId;
     }
 
-    public Long getCampanhaId() { return campanhaId; }
+    public Long getCampanhaId() {
+        return campanhaId;
+    }
 
-    public void setCampanhaId(Long campanhaId) { this.campanhaId = campanhaId; }
+    public void setCampanhaId(Long campanhaId) {
+        this.campanhaId = campanhaId;
+    }
 }

@@ -236,10 +236,10 @@ CREATE TABLE ContaFinanceira (
 
 /*Insert Tabela ContaFinanceira*/
 INSERT INTO ContaFinanceira (bancoId, centroCustoId, descricao, tipoConta, agencia, conta, digito, saldoInicial, dataAbertura, situacaoId) VALUES
-(null, 1, 'Caixa - Matriz', 1, null, null, null, 0.00, '2026-01-01', 12),
-(null, 2, 'Caixa - Pq. Esther 2', 1, null, null, null, 0.00, '2026-01-01', 12),
-(1, 1, 'Bradesco - Matriz', 2, 001, 001, 001, 0.00, '2026-01-01', 12),
-(2, 1, 'Caixa Economica Federal - Matriz', 2, 001, 001, 001, 0.00, '2026-01-01', 12);
+(null, 1, 'Caixa - Matriz', 'CAIXA', null, null, null, 0.00, '2026-01-01', 12),
+(null, 2, 'Caixa - Pq. Esther 2', 'CAIXA', null, null, null, 0.00, '2026-01-01', 12),
+(1, 1, 'Bradesco - Matriz', 'CORRENTE', 001, 001, 001, 0.00, '2026-01-01', 12),
+(2, 1, 'Caixa Economica Federal - Matriz', 'CORRENTE', 001, 001, 001, 0.00, '2026-01-01', 12);
 
 /*========================================================*/
 /*               TRANSFERENCIA FINANCEIRA                 */
@@ -311,7 +311,8 @@ INSERT INTO Categoria (descricao, tipoCategoria) VALUES
 ('Manutenção e Conservação', 'SAIDA'),
 ('Salarios e Ajuda de Custo', 'SAIDA'),
 ('Contribuições', 'SAIDA'),
-('Transferencia Interna Enviada', 'SAIDA');
+('Transferencia Interna Enviada', 'SAIDA'),
+('Aporte Financeiro', 'ENTRADA');
 
 /*========================================================*/
 /*                       LIVRO CAIXA                      */
@@ -555,7 +556,7 @@ CREATE TABLE ContaPagar (
 /*                 TABELA RESERVA FINANCEIRA              */
 /*========================================================*/
 CREATE TABLE ReservaFinanceira (
-    ReservaFinanceiraId BIGINT AUTO_INCREMENT PRIMARY KEY,
+    reservaFinanceiraId BIGINT AUTO_INCREMENT PRIMARY KEY,
     descricao VARCHAR(100) NOT NULL,
     centroCustoId INT NOT NULL,
     contaFinanceiraId BIGINT NOT NULL,

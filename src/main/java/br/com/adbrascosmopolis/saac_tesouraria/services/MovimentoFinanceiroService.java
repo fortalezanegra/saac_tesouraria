@@ -1,19 +1,18 @@
 package br.com.adbrascosmopolis.saac_tesouraria.services;
 
-import br.com.adbrascosmopolis.saac_tesouraria.dto.movimento_financeiro.MovimentoFinanceiroEditDTO;
-import br.com.adbrascosmopolis.saac_tesouraria.dto.movimento_financeiro.MovimentoFinanceiroRequestDTO;
-import br.com.adbrascosmopolis.saac_tesouraria.dto.movimento_financeiro.MovimentoFinanceiroResponseDTO;
+import br.com.adbrascosmopolis.saac_tesouraria.dto.movimento_financeiro.*;
 import br.com.adbrascosmopolis.saac_tesouraria.enumeration.SituacaoLivrosConstantes;
 import br.com.adbrascosmopolis.saac_tesouraria.exceptions.fechamento_mensal.livro_caixa.LivroCaixaInvalidoException;
 import br.com.adbrascosmopolis.saac_tesouraria.exceptions.fechamento_mensal.livro_caixa.LivroCaixaNaoEncontradoException;
+import br.com.adbrascosmopolis.saac_tesouraria.models.Campanha;
 import br.com.adbrascosmopolis.saac_tesouraria.models.LivroCaixa;
 import br.com.adbrascosmopolis.saac_tesouraria.models.MovimentoFinanceiro;
+import br.com.adbrascosmopolis.saac_tesouraria.repository.CampanhaRepository;
 import br.com.adbrascosmopolis.saac_tesouraria.repository.CategoriaRepository;
 import br.com.adbrascosmopolis.saac_tesouraria.repository.ContaFinanceiraRepository;
 import br.com.adbrascosmopolis.saac_tesouraria.repository.LivroCaixaRepository;
 import br.com.adbrascosmopolis.saac_tesouraria.repository.MovimentoFinanceiroRepository;
 import br.com.adbrascosmopolis.saac_tesouraria.repository.PessoaRepository;
-import br.com.adbrascosmopolis.saac_tesouraria.repository.TransferenciaFinanceiraRepository;
 import br.com.adbrascosmopolis.saac_tesouraria.security.SecurityUtils;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
@@ -30,24 +29,24 @@ public class MovimentoFinanceiroService {
     private final MovimentoFinanceiroRepository movimentoFinanceiroRepository;
     private final LivroCaixaRepository livroCaixaRepository;
     private final ContaFinanceiraRepository contaFinanceiraRepository;
-    private final TransferenciaFinanceiraRepository transferenciaFinanceiraRepository;
     private final CategoriaRepository categoriaRepository;
     private final PessoaRepository pessoaRepository;
+    private final CampanhaRepository campanhaRepository;
 
     public MovimentoFinanceiroService(
             MovimentoFinanceiroRepository movimentoFinanceiroRepository,
             LivroCaixaRepository livroCaixaRepository,
             ContaFinanceiraRepository contaFinanceiraRepository,
-            TransferenciaFinanceiraRepository transferenciaFinanceiraRepository,
             CategoriaRepository categoriaRepository,
-            PessoaRepository pessoaRepository
+            PessoaRepository pessoaRepository,
+            CampanhaRepository campanhaRepository
     ) {
         this.movimentoFinanceiroRepository = movimentoFinanceiroRepository;
         this.livroCaixaRepository = livroCaixaRepository;
         this.contaFinanceiraRepository = contaFinanceiraRepository;
-        this.transferenciaFinanceiraRepository = transferenciaFinanceiraRepository;
         this.categoriaRepository = categoriaRepository;
         this.pessoaRepository = pessoaRepository;
+        this.campanhaRepository = campanhaRepository;
     }
 
     @Transactional(readOnly = true)
@@ -61,10 +60,33 @@ public class MovimentoFinanceiroService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<RelatorioCompetenciaDTO> gerarRelatorioPorCompetencia(RelatorioCompetenciaFiltroDTO filtro) {
+        boolean global = SecurityUtils.hasAuthority("PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_REPORT_GLOBAL")
+                || SecurityUtils.hasAuthority("PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_READ_GLOBAL");
+
+        Long congregacaoId = global ? null : SecurityUtils.currentUnityId();
+
+        return movimentoFinanceiroRepository.buscarRelatorioPorCompetencia(
+                congregacaoId, filtro.getMes(), filtro.getAno());
+    }
+
     @Transactional
     public MovimentoFinanceiroResponseDTO create(MovimentoFinanceiroRequestDTO dto) {
         if (dto.getLivroCaixaId() == null) {
-            throw new LivroCaixaInvalidoException("O livroCaixaId não pode ser null.");
+            throw new LivroCaixaInvalidoException("O livroCaixaId é obrigatório.");
+        }
+        if (dto.getContaFinanceiraId() == null) {
+            throw new IllegalArgumentException("O contaFinanceiraId é obrigatório.");
+        }
+        if (dto.getCategoriaId() == null) {
+            throw new IllegalArgumentException("O categoriaId é obrigatório.");
+        }
+        if (dto.getDataMovimento() == null) {
+            throw new IllegalArgumentException("A data do movimento é obrigatória.");
+        }
+        if (dto.getValor() == null || dto.getValor().doubleValue() <= 0) {
+            throw new IllegalArgumentException("O valor deve ser maior que zero.");
         }
 
         LivroCaixa livro = livroCaixaRepository.findById(dto.getLivroCaixaId())
@@ -88,25 +110,27 @@ public class MovimentoFinanceiroService {
         movimento.setHistorico(dto.getHistorico());
         movimento.setLivroCaixa(livro);
 
-        if (dto.getContaFinanceiraId() != null) {
-            movimento.setContaFinanceira(
-                    contaFinanceiraRepository.findById(dto.getContaFinanceiraId())
-                            .orElseThrow(() -> new EntityNotFoundException("Conta Financeira não encontrada!"))
-            );
-        }
+        movimento.setContaFinanceira(
+                contaFinanceiraRepository.findById(dto.getContaFinanceiraId())
+                        .orElseThrow(() -> new EntityNotFoundException("Conta Financeira não encontrada!"))
+        );
 
-        if (dto.getCategoriaId() != null) {
-            movimento.setCategoria(
-                    categoriaRepository.findById(dto.getCategoriaId())
-                            .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada!"))
-            );
-        }
+        movimento.setCategoria(
+                categoriaRepository.findById(dto.getCategoriaId())
+                        .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada!"))
+        );
 
         if (dto.getPessoaId() != null) {
             movimento.setPessoa(
                     pessoaRepository.findById(dto.getPessoaId())
                             .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada!"))
             );
+        }
+
+        if (dto.getCampanhaId() != null) {
+            Campanha campanha = campanhaRepository.findById(dto.getCampanhaId())
+                    .orElseThrow(() -> new EntityNotFoundException("Campanha não encontrada!"));
+            movimento.setCampanha(campanha);
         }
 
         return MovimentoFinanceiroResponseDTO.fromMovimentoFinanceiro(
@@ -160,28 +184,27 @@ public class MovimentoFinanceiroService {
             );
         }
 
+        if (dto.getCampanhaId() != null) {
+            Campanha campanha = campanhaRepository.findById(dto.getCampanhaId())
+                    .orElseThrow(() -> new EntityNotFoundException("Campanha não encontrada!"));
+            movimento.setCampanha(campanha);
+        }
+
         return MovimentoFinanceiroResponseDTO.fromMovimentoFinanceiro(
                 movimentoFinanceiroRepository.save(movimento)
         );
     }
 
     @Transactional
-    public MovimentoFinanceiroResponseDTO delete(MovimentoFinanceiroEditDTO dto) {
-        if (dto.getMovimentoFinanceiroId() == null) {
-            throw new IllegalArgumentException("O atributo movimentoFinanceiroId não pode ser null!");
-        }
-
-        MovimentoFinanceiro movimento = movimentoFinanceiroRepository.findById(dto.getMovimentoFinanceiroId())
-                .orElseThrow(() -> new RuntimeException("Movimento Financeiro não encontrado!"));
+    public void delete(Long id) {
+        MovimentoFinanceiro movimento = movimentoFinanceiroRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Movimento Financeiro não encontrado!"));
 
         validarAcessoCongregacao(movimento.getLivroCaixa(),
                 "PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_DELETE_GLOBAL");
 
         movimento.setDeletedAt(LocalDateTime.now());
-
-        return MovimentoFinanceiroResponseDTO.fromMovimentoFinanceiro(
-                movimentoFinanceiroRepository.save(movimento)
-        );
+        movimentoFinanceiroRepository.save(movimento);
     }
 
     private void validarAcessoCongregacao(LivroCaixa livro, String globalPermission) {

@@ -1,6 +1,5 @@
 package br.com.adbrascosmopolis.saac_tesouraria.models;
 
-import br.com.adbrascosmopolis.saac_tesouraria.enumeration.TipoMovimento;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -19,27 +18,27 @@ public class MovimentoFinanceiro {
     private Long movimentoFinanceiroId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "livroCaixaId", referencedColumnName = "livroCaixaId")
+    @JoinColumn(name = "livroCaixaId", referencedColumnName = "livroCaixaId", nullable = false)
     private LivroCaixa livroCaixa;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "contaFinanceiraId", referencedColumnName = "contaFinanceiraId")
+    @JoinColumn(name = "contaFinanceiraId", referencedColumnName = "contaFinanceiraId", nullable = false)
     private ContaFinanceira contaFinanceira;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoriaId", referencedColumnName = "categoriaId")
+    @JoinColumn(name = "categoriaId", referencedColumnName = "categoriaId", nullable = false)
     private Categoria categoria;
 
-    @Column(name = "valor", precision = 18, scale = 2)
+    @Column(name = "valor", precision = 18, scale = 2, nullable = false)
     private BigDecimal valor;
 
-    @Column(name = "eletronico")
-    private Boolean eletronico;
+    @Column(name = "eletronico", nullable = false)
+    private Boolean eletronico = false;
 
-    @Column(name = "dataMovimento",  nullable = false)
+    @Column(name = "dataMovimento", nullable = false)
     private LocalDate dataMovimento;
 
-    @Column(name = "historico")
+    @Column(name = "historico", length = 255, nullable = false)
     private String historico;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -59,10 +58,10 @@ public class MovimentoFinanceiro {
     private LocalDateTime updatedAt;
 
     @Column(name = "deletedAt")
-    private LocalDateTime deletedAt; // continua manual (soft delete)
+    private LocalDateTime deletedAt;
 
     @Column(name = "modifiedBy")
-    private Integer modifiedBy;
+    private Long modifiedBy;
 
     public Long getMovimentoFinanceiroId() {
         return movimentoFinanceiroId;
@@ -168,11 +167,11 @@ public class MovimentoFinanceiro {
         this.deletedAt = deletedAt;
     }
 
-    public Integer getModifiedBy() {
+    public Long getModifiedBy() {
         return modifiedBy;
     }
 
-    public void setModifiedBy(Integer modifiedBy) {
+    public void setModifiedBy(Long modifiedBy) {
         this.modifiedBy = modifiedBy;
     }
 }

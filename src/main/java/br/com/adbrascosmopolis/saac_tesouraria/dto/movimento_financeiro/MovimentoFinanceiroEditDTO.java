@@ -1,41 +1,34 @@
 package br.com.adbrascosmopolis.saac_tesouraria.dto.movimento_financeiro;
 
-import br.com.adbrascosmopolis.saac_tesouraria.enumeration.TipoMovimento;
-import br.com.adbrascosmopolis.saac_tesouraria.models.MovimentoFinanceiro;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 public class MovimentoFinanceiroEditDTO {
 
     private Long movimentoFinanceiroId;
+
     private Long livroCaixaId;
+
     private Long contaFinanceiraId;
+
     private Integer categoriaId;
+
+    @Positive(message = "O valor deve ser maior que zero")
     private BigDecimal valor;
+
     private Boolean eletronico;
+
     private LocalDate dataMovimento;
+
+    @Size(max = 255, message = "O histórico deve ter no máximo 255 caracteres")
     private String historico;
+
     private Long pessoaId;
     private Long campanhaId;
-
-    public static MovimentoFinanceiroEditDTO fromMovimentoFinanceiro(MovimentoFinanceiro m){
-
-        MovimentoFinanceiroEditDTO dto = new MovimentoFinanceiroEditDTO();
-
-        dto.movimentoFinanceiroId = m.getMovimentoFinanceiroId();
-        dto.livroCaixaId = m.getLivroCaixa() != null ? m.getLivroCaixa().getLivroCaixaId() : null;
-        dto.contaFinanceiraId = m.getContaFinanceira() != null ? m.getContaFinanceira().getContaFinanceiraId() : null;
-        dto.categoriaId = m.getCategoria() != null ? m.getCategoria().getCategoriaId() : null;
-        dto.valor = m.getValor();
-        dto.eletronico = m.getEletronico();
-        dto.dataMovimento = m.getDataMovimento();
-        dto.historico = m.getHistorico();
-        dto.pessoaId = m.getPessoa() != null ? m.getPessoa().getPessoaId() : null;
-        dto.campanhaId = m.getCampanha() != null ? m.getCampanha().getCampanhaId() : null;
-
-        return dto;
-    }
 
     public Long getMovimentoFinanceiroId() {
         return movimentoFinanceiroId;

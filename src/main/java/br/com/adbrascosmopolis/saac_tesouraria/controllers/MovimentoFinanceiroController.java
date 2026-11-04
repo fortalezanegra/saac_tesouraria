@@ -1,8 +1,6 @@
 package br.com.adbrascosmopolis.saac_tesouraria.controllers;
 
-import br.com.adbrascosmopolis.saac_tesouraria.dto.movimento_financeiro.MovimentoFinanceiroEditDTO;
-import br.com.adbrascosmopolis.saac_tesouraria.dto.movimento_financeiro.MovimentoFinanceiroRequestDTO;
-import br.com.adbrascosmopolis.saac_tesouraria.dto.movimento_financeiro.MovimentoFinanceiroResponseDTO;
+import br.com.adbrascosmopolis.saac_tesouraria.dto.movimento_financeiro.*;
 import br.com.adbrascosmopolis.saac_tesouraria.services.MovimentoFinanceiroService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +27,14 @@ public class MovimentoFinanceiroController {
         return ResponseEntity.ok(service.getAll());
     }
 
+    @PostMapping("/relatorio/competencia")
+    @PreAuthorize("hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_REPORT_GLOBAL') or hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_REPORT_LOCAL') or hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_READ_GLOBAL') or hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_READ_LOCAL')")
+    public ResponseEntity<List<RelatorioCompetenciaDTO>> relatorioPorCompetencia(
+            @Valid @RequestBody RelatorioCompetenciaFiltroDTO filtro
+    ) {
+        return ResponseEntity.ok(service.gerarRelatorioPorCompetencia(filtro));
+    }
+
     @PostMapping
     @PreAuthorize("hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_CREATE_GLOBAL') or hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_CREATE_LOCAL')")
     public ResponseEntity<MovimentoFinanceiroResponseDTO> create(@RequestBody @Valid MovimentoFinanceiroRequestDTO dto) {
@@ -43,17 +49,21 @@ public class MovimentoFinanceiroController {
         return ResponseEntity.created(location).body(response);
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_UPDATE_GLOBAL') or hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_UPDATE_LOCAL')")
-    public ResponseEntity<MovimentoFinanceiroResponseDTO> update(@RequestBody @Valid MovimentoFinanceiroEditDTO dto) {
+    public ResponseEntity<MovimentoFinanceiroResponseDTO> update(
+            @PathVariable Long id,
+            @RequestBody @Valid MovimentoFinanceiroEditDTO dto
+    ) {
+        dto.setMovimentoFinanceiroId(id);
         MovimentoFinanceiroResponseDTO movimento = service.update(dto);
         return ResponseEntity.ok(movimento);
     }
 
-    @PutMapping("/delete")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_DELETE_GLOBAL') or hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_DELETE_LOCAL')")
-    public ResponseEntity<MovimentoFinanceiroResponseDTO> delete(@RequestBody @Valid MovimentoFinanceiroEditDTO dto) {
-        MovimentoFinanceiroResponseDTO movimento = service.delete(dto);
-        return ResponseEntity.ok(movimento);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
