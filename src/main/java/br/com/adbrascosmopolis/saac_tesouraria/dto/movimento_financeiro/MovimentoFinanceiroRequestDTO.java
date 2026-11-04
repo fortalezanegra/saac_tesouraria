@@ -28,7 +28,6 @@ public class MovimentoFinanceiroRequestDTO {
     @NotNull(message = "A data do movimento é obrigatória")
     private LocalDate dataMovimento;
 
-    @NotNull(message = "O histórico é obrigatório")
     @Size(max = 255, message = "O histórico deve ter no máximo 255 caracteres")
     private String historico;
 

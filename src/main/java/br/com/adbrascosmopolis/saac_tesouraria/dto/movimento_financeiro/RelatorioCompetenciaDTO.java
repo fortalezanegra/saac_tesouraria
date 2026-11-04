@@ -15,6 +15,7 @@ public class RelatorioCompetenciaDTO {
     private String historico;
     private String pessoaNome;
     private String campanhaDescricao;
+    private Boolean eletronico;
 
     public RelatorioCompetenciaDTO(
             Long movimentoFinanceiroId,
@@ -26,7 +27,8 @@ public class RelatorioCompetenciaDTO {
             BigDecimal valor,
             String historico,
             String pessoaNome,
-            String campanhaDescricao
+            String campanhaDescricao,
+            Boolean eletronico
     ) {
         this.movimentoFinanceiroId = movimentoFinanceiroId;
         this.dataMovimento = dataMovimento;
@@ -38,9 +40,9 @@ public class RelatorioCompetenciaDTO {
         this.historico = historico;
         this.pessoaNome = pessoaNome;
         this.campanhaDescricao = campanhaDescricao;
+        this.eletronico = eletronico;
     }
 
-    // getters
     public Long getMovimentoFinanceiroId() { return movimentoFinanceiroId; }
     public LocalDate getDataMovimento() { return dataMovimento; }
     public String getContaFinanceiraDescricao() { return contaFinanceiraDescricao; }
@@ -51,4 +53,5 @@ public class RelatorioCompetenciaDTO {
     public String getHistorico() { return historico; }
     public String getPessoaNome() { return pessoaNome; }
     public String getCampanhaDescricao() { return campanhaDescricao; }
+    public Boolean getEletronico() { return eletronico; }
 }

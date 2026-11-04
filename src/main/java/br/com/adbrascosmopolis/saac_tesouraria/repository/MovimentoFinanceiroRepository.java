@@ -85,34 +85,39 @@ public interface MovimentoFinanceiroRepository extends JpaRepository<MovimentoFi
     List<MovimentoListagemProjection> buscarMovimentosParaRelatorio(@Param("livroCaixaId") Long livroCaixaId);
 
     @Query("""
-    SELECT new br.com.adbrascosmopolis.saac_tesouraria.dto.movimento_financeiro.RelatorioCompetenciaDTO(
-        m.movimentoFinanceiroId,
-        m.dataMovimento,
-        m.contaFinanceira.descricao,
-        lc.centroCusto.descricao,
-        m.categoria.descricao,
-        CAST(m.categoria.tipoCategoria AS string),
-        m.valor,
-        m.historico,
-        COALESCE(m.pessoa.nome, ''),
-        COALESCE(m.campanha.descricao, '')
-    )
-    FROM MovimentoFinanceiro m
-    JOIN m.livroCaixa lc
-    JOIN lc.centroCusto cc
-    JOIN cc.congregacao c
-    LEFT JOIN m.pessoa
-    LEFT JOIN m.campanha
-    WHERE (:congregacaoId IS NULL OR c.congregacaoId = :congregacaoId)
-      AND FUNCTION('YEAR', lc.competencia) = :ano
-      AND FUNCTION('MONTH', lc.competencia) = :mes
-      AND m.deletedAt IS NULL
-    ORDER BY m.dataMovimento, m.movimentoFinanceiroId ASC
-""")
-    List<RelatorioCompetenciaDTO> buscarRelatorioPorCompetencia(
-            @Param("congregacaoId") Long congregacaoId,
-            @Param("mes") int mes,
-            @Param("ano") int ano
-    );
+        SELECT new br.com.adbrascosmopolis.saac_tesouraria.dto.movimento_financeiro.RelatorioCompetenciaDTO(
+            m.movimentoFinanceiroId,
+            m.dataMovimento,
+            m.contaFinanceira.descricao,
+            lc.centroCusto.descricao,
+            m.categoria.descricao,
+            CAST(m.categoria.tipoCategoria AS string),
+            m.valor,
+            m.historico,
+            COALESCE(m.pessoa.nome, ''),
+            COALESCE(m.campanha.descricao, ''),
+            m.eletronico
+        )
+        FROM MovimentoFinanceiro m
+        JOIN m.livroCaixa lc
+        JOIN lc.centroCusto cc
+        JOIN cc.congregacao c
+        LEFT JOIN m.pessoa
+        LEFT JOIN m.campanha
+        WHERE (:congregacaoId IS NULL OR c.congregacaoId = :congregacaoId)
+          AND FUNCTION('YEAR', lc.competencia) = :ano
+          AND FUNCTION('MONTH', lc.competencia) = :mes
+          AND m.deletedAt IS NULL
+        ORDER BY m.dataMovimento, m.movimentoFinanceiroId ASC
+    """)
+        List<RelatorioCompetenciaDTO> buscarRelatorioPorCompetencia(
+                @Param("congregacaoId") Long congregacaoId,
+                @Param("mes") int mes,
+                @Param("ano") int ano
+        );
+
+
+
+
 
 }
