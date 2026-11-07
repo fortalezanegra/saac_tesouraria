@@ -50,6 +50,15 @@ public class ContaFinanceiraService {
         return contaFinanceiraRepository.listContasByCentroCusto(centroCustoId);
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public ContaFinanceiraResponseDTO findById(Long id) {
+        ContaFinanceira conta = contaFinanceiraRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Conta não encontrada!"));
+
+        return ContaFinanceiraResponseDTO.fromContaFinanceira(conta);
+    }
+
+
     //Create
     @Transactional
     public ContaFinanceiraResponseDTO create(ContaFinanceiraRequestDTO dto){

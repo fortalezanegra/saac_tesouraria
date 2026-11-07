@@ -21,6 +21,13 @@ public class MovimentoFinanceiroController {
         this.service = service;
     }
 
+    @PostMapping("/findById")
+    @PreAuthorize("hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_READ_GLOBAL') or hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_READ_LOCAL')")
+    public ResponseEntity<MovimentoFinanceiroResponseDTO> findById(
+            @RequestBody MovimentoFinanceiroEditDTO dto) {
+        return ResponseEntity.ok(service.findById(dto.getMovimentoFinanceiroId()));
+    }
+
     @GetMapping
     @PreAuthorize("hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_READ_GLOBAL') or hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_READ_LOCAL')")
     public ResponseEntity<List<MovimentoFinanceiroResponseDTO>> getAll() {
@@ -49,13 +56,12 @@ public class MovimentoFinanceiroController {
         return ResponseEntity.created(location).body(response);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping()
     @PreAuthorize("hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_UPDATE_GLOBAL') or hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_UPDATE_LOCAL')")
     public ResponseEntity<MovimentoFinanceiroResponseDTO> update(
-            @PathVariable Long id,
             @RequestBody @Valid MovimentoFinanceiroEditDTO dto
     ) {
-        dto.setMovimentoFinanceiroId(id);
+        dto.setMovimentoFinanceiroId(dto.getMovimentoFinanceiroId());
         MovimentoFinanceiroResponseDTO movimento = service.update(dto);
         return ResponseEntity.ok(movimento);
     }

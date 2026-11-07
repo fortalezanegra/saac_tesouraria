@@ -1,6 +1,7 @@
 package br.com.adbrascosmopolis.saac_tesouraria.controllers;
 
 import br.com.adbrascosmopolis.saac_tesouraria.dto.conta_financeira.*;
+import br.com.adbrascosmopolis.saac_tesouraria.dto.movimento_financeiro.MovimentoFinanceiroResponseDTO;
 import br.com.adbrascosmopolis.saac_tesouraria.services.conta_financeira.ContaFinanceiraService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +34,13 @@ public class ContaFinanceiraController {
         List<ContaFinanceiraDropdownDTO> contas = service.listContas();
         return ResponseEntity.ok(contas);
     }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_READ_GLOBAL') or hasAuthority('PERMISSION_TESOURARIA_MOVIMENTO_FINANCEIRO_READ_LOCAL')")
+    public ResponseEntity<ContaFinanceiraResponseDTO> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
+    }
+
 
 //    @PostMapping()
 //    public ResponseEntity<Object> create(@RequestBody ContaFinanceiraRequestDTO dto) {

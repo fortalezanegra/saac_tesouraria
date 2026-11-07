@@ -8,37 +8,52 @@ import java.time.format.DateTimeFormatter;
 public class MovimentoFinanceiroResponseDTO {
 
     private Long movimentoFinanceiroId;
+    private Long livroCaixaId;
     private String livroCaixa;
+    private Long contaFinanceiraId;
     private String contaFinanceira;
+    private Integer categoriaId;
     private String categoria;
     private BigDecimal valor;
     private Boolean eletronico;
     private LocalDate dataMovimento;
     private String historico;
-    private String responsavel;
+    private Long pessoaId;
+    private String pessoaNome;
+    private Long campanhaId;
     private String campanha;
 
     public MovimentoFinanceiroResponseDTO(
             Long movimentoFinanceiroId,
+            Long livroCaixaId,
             String livroCaixa,
+            Long contaFinanceiraId,
             String contaFinanceira,
+            Integer categoriaId,
             String categoria,
             BigDecimal valor,
             Boolean eletronico,
             LocalDate dataMovimento,
             String historico,
-            String responsavel,
+            Long pessoaId,
+            String pessoaNome,
+            Long campanhaId,
             String campanha
     ){
         this.movimentoFinanceiroId = movimentoFinanceiroId;
+        this.livroCaixaId = livroCaixaId;
         this.livroCaixa = livroCaixa;
+        this.contaFinanceiraId = contaFinanceiraId;
         this.contaFinanceira = contaFinanceira;
+        this.categoriaId = categoriaId;
         this.categoria = categoria;
         this.valor = valor;
         this.eletronico = eletronico;
         this.dataMovimento = dataMovimento;
         this.historico = historico;
-        this.responsavel = responsavel;
+        this.pessoaId = pessoaId;
+        this.pessoaNome = pessoaNome;
+        this.campanhaId = campanhaId;
         this.campanha = campanha;
     }
 
@@ -66,95 +81,65 @@ public class MovimentoFinanceiroResponseDTO {
 
         return new MovimentoFinanceiroResponseDTO(
                 m.getMovimentoFinanceiroId(),
+                m.getLivroCaixa() != null ? m.getLivroCaixa().getLivroCaixaId() : null,
                 livroCaixa,
+                m.getContaFinanceira() != null ? m.getContaFinanceira().getContaFinanceiraId() : null,
                 m.getContaFinanceira() != null ? m.getContaFinanceira().getDescricao() : null,
+                m.getCategoria() != null ? m.getCategoria().getCategoriaId() : null,
                 m.getCategoria() != null ? m.getCategoria().getDescricao() : null,
                 m.getValor(),
                 m.getEletronico(),
                 m.getDataMovimento(),
                 m.getHistorico(),
+                m.getPessoa() != null ? m.getPessoa().getPessoaId() : null,
                 m.getPessoa() != null ? m.getPessoa().getNome() : null,
+                m.getCampanha() != null ? m.getCampanha().getCampanhaId() : null,
                 m.getCampanha() != null ? m.getCampanha().getDescricao() : null
         );
     }
 
-    public Long getMovimentoFinanceiroId() {
-        return movimentoFinanceiroId;
-    }
+    public Long getMovimentoFinanceiroId() { return movimentoFinanceiroId; }
+    public void setMovimentoFinanceiroId(Long movimentoFinanceiroId) { this.movimentoFinanceiroId = movimentoFinanceiroId; }
 
-    public void setMovimentoFinanceiroId(Long movimentoFinanceiroId) {
-        this.movimentoFinanceiroId = movimentoFinanceiroId;
-    }
+    public Long getLivroCaixaId() { return livroCaixaId; }
+    public void setLivroCaixaId(Long livroCaixaId) { this.livroCaixaId = livroCaixaId; }
 
-    public String getLivroCaixa() {
-        return livroCaixa;
-    }
+    public String getLivroCaixa() { return livroCaixa; }
+    public void setLivroCaixa(String livroCaixa) { this.livroCaixa = livroCaixa; }
 
-    public void setLivroCaixa(String livroCaixa) {
-        this.livroCaixa = livroCaixa;
-    }
+    public Long getContaFinanceiraId() { return contaFinanceiraId; }
+    public void setContaFinanceiraId(Long contaFinanceiraId) { this.contaFinanceiraId = contaFinanceiraId; }
 
-    public String getContaFinanceira() {
-        return contaFinanceira;
-    }
+    public String getContaFinanceira() { return contaFinanceira; }
+    public void setContaFinanceira(String contaFinanceira) { this.contaFinanceira = contaFinanceira; }
 
-    public void setContaFinanceira(String contaFinanceira) {
-        this.contaFinanceira = contaFinanceira;
-    }
+    public Integer getCategoriaId() { return categoriaId; }
+    public void setCategoriaId(Integer categoriaId) { this.categoriaId = categoriaId; }
 
-    public String getCategoria() {
-        return categoria;
-    }
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
 
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
-    }
+    public BigDecimal getValor() { return valor; }
+    public void setValor(BigDecimal valor) { this.valor = valor; }
 
-    public BigDecimal getValor() {
-        return valor;
-    }
+    public Boolean getEletronico() { return eletronico; }
+    public void setEletronico(Boolean eletronico) { this.eletronico = eletronico; }
 
-    public void setValor(BigDecimal valor) {
-        this.valor = valor;
-    }
+    public LocalDate getDataMovimento() { return dataMovimento; }
+    public void setDataMovimento(LocalDate dataMovimento) { this.dataMovimento = dataMovimento; }
 
-    public Boolean getEletronico() {
-        return eletronico;
-    }
+    public String getHistorico() { return historico; }
+    public void setHistorico(String historico) { this.historico = historico; }
 
-    public void setEletronico(Boolean eletronico) {
-        this.eletronico = eletronico;
-    }
+    public Long getPessoaId() { return pessoaId; }
+    public void setPessoaId(Long pessoaId) { this.pessoaId = pessoaId; }
 
-    public LocalDate getDataMovimento() {
-        return dataMovimento;
-    }
+    public String getPessoaNome() { return pessoaNome; }
+    public void setPessoaNome(String pessoaNome) { this.pessoaNome = pessoaNome; }
 
-    public void setDataMovimento(LocalDate dataMovimento) {
-        this.dataMovimento = dataMovimento;
-    }
+    public Long getCampanhaId() { return campanhaId; }
+    public void setCampanhaId(Long campanhaId) { this.campanhaId = campanhaId; }
 
-    public String getHistorico() {
-        return historico;
-    }
-
-    public void setHistorico(String historico) {
-        this.historico = historico;
-    }
-
-    public String getResponsavel() {
-        return responsavel;
-    }
-
-    public void setResponsavel(String responsavel) {
-        this.responsavel = responsavel;
-    }
-
-    public String getCampanha() {
-        return campanha;
-    }
-
-    public void setCampanha(String campanha) {
-        this.campanha = campanha;
-    }
+    public String getCampanha() { return campanha; }
+    public void setCampanha(String campanha) { this.campanha = campanha; }
 }

@@ -50,7 +50,8 @@ public class SecurityConfig {
         // Origens onde o Angular está rodando
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:4200",
-                "http://10.0.0.76:4200"
+                "http://10.0.0.76:4200",
+                "http://201.130.23.160:4200"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
